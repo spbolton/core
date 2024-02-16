@@ -16,7 +16,6 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <coverage.execution.locations>target/jacoco-report/*.exec</coverage.execution.locations>
         <coverage.report.phase>verify</coverage.report.phase>
     </properties>
 
@@ -59,9 +58,6 @@
                                 <configuration>
                                     <title>DotCMS</title>
                                     <footer>Code Coverage Report for DotCMS ${project.version}</footer>
-                                    <dataFileIncludes>
-                                        <dataFileInclude>${coverage.execution.locations}</dataFileInclude>
-                                    </dataFileIncludes>
                                 </configuration>
                             </execution>
                         </executions>

@@ -625,28 +625,43 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       # download the coverage execution files
-      - uses: actions/download-artifact@v4
+      - name: Download build reports
+        uses: actions/download-artifact@v4
         with:
           pattern: 'build-reports-test-*'
-          merge-multiple: true
-      - name: Maven Build No Test
-        env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+          # we have matrix builds that produce the same path so make sure they go in separate folders
+          merge-multiple: false
+          # jacoco report-aggregate looks for exec files withing each target, we can throw them all in dotcms-core/target
+          path: dotcms-core/target/build-reports
+      - name: Log reports found
         shell: bash
         run: |
-          ./mvnw $JVM_TEST_MAVEN_OPTS compile -pl :dotcms-reports,:dotcms-postman,:dotcms-integration -Pcoverage -Dcoverage.report.phase=compile
-          ./mvnw $JVM_TEST_MAVEN_OPTS org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=dotCMS_core_AYSbIemxK43eThAXTlt- -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.token=$SONAR_TOKEN
+          find dotcms-core/target/build-reports
+      - name: Maven Build No Test
+        env:
+          MAVEN_OPTS: "-Xmx2048m"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        shell: bash
+        run: |
+          ./mvnw $JVM_TEST_MAVEN_OPTS compile -DskipTests=true -Pcoverage -Dcoverage.report.phase=compile
+          ./mvnw $JVM_TEST_MAVEN_OPTS -Dsonar.log.level=DEBUG org.sonarsource.scanner.maven:sonar-maven-plugin:sonar '-Dcoverage.execution.locations=build-reports/**/*.exec' -Dsonar.projectKey=dotCMS_core_AYSbIemxK43eThAXTlt- -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.token=$SONAR_TOKEN
       - name: SonarQube Quality Gate check
         id: sonarqube-quality-gate-check
         if: (success() || failure()) && (github.repository == 'dotCMS/core' || !endsWith(github.ref, '/master'))
         uses: sonarsource/sonarqube-quality-gate-action@master
         # Force to fail step after specific time.
         timeout-minutes: 5
+        with:
+          scanMetadataReportFile: target/sonar/report-task.txt
         env:
           MAVEN_OPTS: "-Xmx2048m"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: "Example show SonarQube Quality Gate Status value"
+        run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
   clean-up:
     name: Clean up
     runs-on: ubuntu-latest

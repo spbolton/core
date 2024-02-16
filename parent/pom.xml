@@ -1147,6 +1147,39 @@
 
     <profiles>
         <profile>
+            <id>jprofiler</id>
+            <properties>
+              <!--  <docker.debug.args>-Xshareclasses:none -agentpath:/jprofiler/bin/linux_musl-aarch64/libjprofilerti.so=port=8849</docker.debug.args>-->
+                <docker.debug.args>-agentpath:/jprofiler/bin/linux-aarch64/libjprofilerti.so=port=8849,nowait</docker.debug.args>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>${version.docker-maven.plugin}</version>
+                        <configuration>
+                            <skip>${docker.jacoco.skip}</skip>
+                            <imagesMap>
+                                <dotcms>
+                                    <run>
+                                        <ports combine.children="append">
+                                            <port>8849:8849</port>
+                                        </ports>
+                                        <volumes>
+                                            <bind combine.children="append">
+                                                <volume>/Users/stevebolton/Downloads/jprofiler14:/jprofiler</volume>
+                                            </bind>
+                                        </volumes>
+                                    </run>
+                                </dotcms>
+                            </imagesMap>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>use-license</id>
             <activation>
                 <file>
