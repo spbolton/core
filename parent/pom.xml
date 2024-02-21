@@ -24,7 +24,6 @@
         <docker.jacoco.skip>true</docker.jacoco.skip>
         <!-- starter -->
         <starter.download.folder>${project.build.directory}/starter</starter.download.folder>
-        <!--<starter.deploy.version>empty_20230710</starter.deploy.version>-->
         <starter.deploy.version>empty_20240201</starter.deploy.version>
         <starter.deploy.filename>starter.zip</starter.deploy.filename>
         <starter.run.version>${starter.deploy.version}</starter.run.version>
@@ -140,8 +139,6 @@
         <license.user.path>${user.home}/.dotcms/license/license.dat</license.user.path>
         <license.use>false</license.use>
         <dotcms.startup.timeout>120000</dotcms.startup.timeout>
-        <!-- user license copied into here need to ensure file exists before mapping or it will be created as a folder -->
-        <!--<build.license.path>${maven.multiModuleProjectDirectory}/dotlicense/license.dat</build.license.path>-->
         <docker.license.volume.internal>/data/local/dotsecure/license/license.dat</docker.license.volume.internal>
         <docker.starter.volume.internal>/data/starter</docker.starter.volume.internal>
         <docker.db.volume>${docker.run.context}_db</docker.db.volume>
@@ -155,7 +152,6 @@
         <debug.args/>
         <docker.debug.args/>
         <docker.debug.args.default>-agentlib:jdwp=transport=dt_socket,server=y,suspend=${debug.suspend.flag},address=*:${debug.port}</docker.debug.args.default>
-        <!--<docker.debug.args></docker.debug.args>-->
         <disable.custom.properties>false</disable.custom.properties>
         <config.environment>dev</config.environment>
         <environment.properties.folder>${maven.multiModuleProjectDirectory}/environments</environment.properties.folder>
@@ -371,21 +367,11 @@
                         <pomCacheDirectory>${maven.multiModuleProjectDirectory}/.cache/.rewrite-cache</pomCacheDirectory>
                     </configuration>
                     <dependencies>
-                        <!--   <dependency>
-                            <groupId>org.openrewrite.recipe</groupId>
-                            <artifactId>rewrite-logging-frameworks</artifactId>
-                            <version>1.20.1</version>
-                        </dependency>-->
                         <dependency>
                             <groupId>org.openrewrite.recipe</groupId>
                             <artifactId>rewrite-migrate-java</artifactId>
                             <version>2.7.1</version>
                         </dependency>
-                        <!-- <dependency>
-                            <groupId>org.openrewrite.recipe</groupId>
-                            <artifactId>rewrite-testing-frameworks</artifactId>
-                            <version>1.37.0</version>
-                        </dependency>-->
                     </dependencies>
                 </plugin>
                 <plugin>
@@ -401,13 +387,11 @@
                         <skip>${spotless.skip}</skip>
                         <!-- These are the defaults, you can override if you want -->
                         <!-- optional: limit format enforcement to just the files changed by this feature branch -->
-                        <!-- <ratchetFrom>origin/main</ratchetFrom>-->
                         <formats>
                             <!-- you can define as many formats as you want, each is independent -->
                             <format>
                                 <!-- define the files to apply to -->
                                 <includes>
-                                    <!--<include>*.md</include>-->
                                     <include>.gitignore</include>
                                 </includes>
                                 <!-- define the steps to apply to those files -->
@@ -1149,7 +1133,6 @@
         <profile>
             <id>jprofiler</id>
             <properties>
-              <!--  <docker.debug.args>-Xshareclasses:none -agentpath:/jprofiler/bin/linux_musl-aarch64/libjprofilerti.so=port=8849</docker.debug.args>-->
                 <docker.debug.args>-agentpath:/jprofiler/bin/linux-aarch64/libjprofilerti.so=port=8849,nowait</docker.debug.args>
             </properties>
             <build>
@@ -1646,7 +1629,6 @@
                                         <volumes>
                                             <bind combine.children="append">
                                                 <volume>${project.build.directory}/jacoco-agent:/jacoco-agent</volume>
-                                               <!-- <volume>${project.build.directory}/jacoco-report:/jacoco-report</volume>-->
                                             </bind>
                                         </volumes>
                                     </run>

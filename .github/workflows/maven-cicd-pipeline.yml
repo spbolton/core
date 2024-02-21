@@ -401,6 +401,7 @@ jobs:
         with:
           name: maven-repo
           path: ~/.m2/repository
+        continue-on-error: true
       - name: Restore Node Binary
         id: cache-node-binary
         uses: actions/cache/restore@v3
@@ -619,6 +620,7 @@ jobs:
         with:
           name: maven-repo
           path: ~/.m2/repository
+        continue-on-error: true
       - name: Cache SonarQube packages
         uses: actions/cache@v1
         with:

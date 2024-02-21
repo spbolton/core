@@ -29,7 +29,7 @@
             scheme="http"
             compression="${CMS_COMPRESSION:on}"
             compressionMinSize="128"
-            compressibleMimeType="${CMS_COMPRESSIBLEMIMETYPE:-$default.compressible.mimetype}"
+            compressibleMimeType="${CMS_COMPRESSIBLEMIMETYPE:-$default.compressible.mimetypes}"
             noCompressionStrongETag="${CMS_NOCOMPRESSIONSTRONGETAG:-false}"
             useSendfile="false"
             />
@@ -49,7 +49,7 @@
             URIEncoding="UTF-8"
             bindOnInit="true"
             compression="${CMS_COMPRESSION:on}"
-            compressibleMimeType="${CMS_COMPRESSIBLEMIMETYPE:-$default.compressible.mimetype}"
+            compressibleMimeType="${CMS_COMPRESSIBLEMIMETYPE:-$default.compressible.mimetypes}"
             noCompressionStrongETag="${CMS_NOCOMPRESSIONSTRONGETAG:-false}"
             compressionMinSize="128"
             useSendfile="false"

@@ -104,10 +104,7 @@
                                     <DB_MAX_TOTAL>15</DB_MAX_TOTAL>
                                     <DOT_INDEX_POLICY_SINGLE_CONTENT>FORCE</DOT_INDEX_POLICY_SINGLE_CONTENT>
                                     <DOT_ASYNC_REINDEX_COMMIT_LISTENERS>false</DOT_ASYNC_REINDEX_COMMIT_LISTENERS>
-                                    '
                                     <DOT_ASYNC_COMMIT_LISTENERS>false</DOT_ASYNC_COMMIT_LISTENERS>
-                                    <!--<DOT_GRAPHQL_SCHEMA_DEBOUNCE_DELAY_MILLIS>0</DOT_GRAPHQL_SCHEMA_DEBOUNCE_DELAY_MILLIS>-->
-                                    <!--<WAIT_FOR_DEPS>30</WAIT_FOR_DEPS> -->
                                     <DOT_CACHE_GRAPHQLQUERYCACHE_SECONDS>600</DOT_CACHE_GRAPHQLQUERYCACHE_SECONDS>
                                     <JVM_ENDPOINT_TEST_PASS>obfuscate_me</JVM_ENDPOINT_TEST_PASS>
                                     <DOT_ENABLE_SCRIPTING>true</DOT_ENABLE_SCRIPTING>
