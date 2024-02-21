@@ -659,7 +659,7 @@ jobs:
         if: (success() || failure()) && (github.repository == 'dotCMS/core' || !endsWith(github.ref, '/master'))
         uses: sonarsource/sonarqube-quality-gate-action@master
         # Force to fail step after specific time.
-        timeout-minutes: 5
+        timeout-minutes: 15
         with:
           scanMetadataReportFile: target/sonar/report-task.txt
         env:
