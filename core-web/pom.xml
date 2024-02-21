@@ -282,17 +282,6 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <id>prettier-test</id>
-                                <goals>
-                                    <goal>yarn</goal>
-                                </goals>
-                                <!-- optional: the default phase is "generate-resources" -->
-                                <phase>generate-resources</phase>
-                                <configuration>
-                                    <arguments>npx pretty-quick --check ${pretty.quick.options}</arguments>
-                                </configuration>
-                            </execution>
-                            <execution>
                                 <id>format-test</id>
                                 <goals>
                                     <goal>yarn</goal>
