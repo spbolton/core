@@ -33,6 +33,10 @@
         <skip.core-web.updates>false</skip.core-web.updates>
         <!-- Needs to match list in husky pre-commit hook change to have common source of this -->
         <frontend.lint.excluded.projects>dot-rules,dot-layout-grid,dot-primeng-theme-styles,dot-rules,dotcms,dotcms-field-elements,dotcms-js,dotcms-models,dotcms-webcomponents,dotcdn-e2e,dotcms-block-editor,dotcms-block-editor-e2e,dotcms-ui-e2e,utils-testing,dojo-theme</frontend.lint.excluded.projects>
+        <skip.validate>true</skip.validate>
+        <git.origin.branch>origin/master</git.origin.branch>
+        <nx.affected.options>--base=${git.origin.branch} --head=HEAD</nx.affected.options>
+        <pretty.quick.options>--branch=${git.origin.branch}</pretty.quick.options>
     </properties>
 
     <dependencies>
@@ -263,35 +267,6 @@
             </properties>
             <build/>
         </profile>
-        <profile>
-            <id>not_pr</id>
-            <activation>
-                <property>
-                    <name>!github.event.name</name>
-                </property>
-            </activation>
-            <properties>
-                <nx.affected.options/>
-                <pretty.quick.options/>
-                <skip.validate>true</skip.validate>
-            </properties>
-        </profile>
-        <profile>
-            <id>is_pr</id>
-            <!-- Configuration specific to PRs -->
-            <activation>
-                <property>
-                    <name>github.event.name</name>
-                    <value>pull_request</value>
-                </property>
-            </activation>
-            <properties>
-                <git.origin.branch>origin/master</git.origin.branch>
-                <nx.affected.options>--base=${git.origin.branch} --head=HEAD</nx.affected.options>
-                <pretty.quick.options>--branch=${git.origin.branch}</pretty.quick.options>
-                <skip.validate>false</skip.validate>
-            </properties>
-        </profile>
 
         <profile>
             <id>validate</id>
@@ -344,6 +319,24 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>is_pr</id>
+            <!-- Configuration specific to PRs -->
+            <activation>
+                <property>
+                    <name>github.event.name</name>
+                    <value>pull_request</value>
+                </property>
+            </activation>
+            <properties>
+                <git.origin.branch>origin/master</git.origin.branch>
+                <nx.affected.options>--base=${git.origin.branch} --head=HEAD</nx.affected.options>
+                <pretty.quick.options>--branch=${git.origin.branch}</pretty.quick.options>
+                <skip.validate>false</skip.validate>
+            </properties>
+        </profile>
+
         <profile>
             <id>format</id>
             <build>
