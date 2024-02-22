@@ -89,13 +89,13 @@ jobs:
             test_results_json='${{ steps.test-results.outputs.json }}'
             
             # Extract data from the test results JSON
-            test_conclusion=$(echo $test_results_json | jq '.conclusion')
-            test_passed=$(echo $test_results_json | jq '.stats.tests_succ')
-            test_failed=$(echo $test_results_json | jq '.stats.tests_fail')
-            test_skipped=$(echo $test_results_json | jq '.stats.tests_skip')
-            test_elapsed=$(echo $test_results_json | jq '.stats.duration')
-            test_results_url=$(echo $test_results_json | jq '.check_url')
-            test_summary=$(echo $test_results_json | jq '.summary')
+            test_conclusion=$(echo $test_results_json | jq -r '.conclusion')
+            test_passed=$(echo $test_results_json | jq -r '.stats.tests_succ')
+            test_failed=$(echo $test_results_json | jq -r '.stats.tests_fail')
+            test_skipped=$(echo $test_results_json | jq -r '.stats.tests_skip')
+            test_elapsed=$(echo $test_results_json | jq -r '.stats.duration')
+            test_results_url=$(echo $test_results_json | jq -r '.check_url')
+            test_summary=$(echo $test_results_json | jq -ia '.summary')
             
             
             
