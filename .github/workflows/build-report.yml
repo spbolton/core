@@ -84,26 +84,19 @@ jobs:
             branch_url="https://github.com/$source_repository/tree/$branch"
             commit_id_url="https://github.com/$source_repository/pull/$pr_number/commits/$head_sha"
             test_results_url="https://github.com/$source_repository/pull/${pr_number}/checks"
-            if [[ -z "${{ steps.test-reporter.outputs.json }}" ]]; then
-              test_conclusion="Not Run"
-              test_passed=0
-              test_failed=0
-              test_skipped=0
-              test_elapsed=0
-              check_url=""
-            else
-             # Load the test results JSON output
-              test_results_json='${{ steps.test-results.outputs.json }}'
-              
-              # Extract data from the test results JSON
-              test_conclusion=$(echo $test_results_json | jq -r '.conclusion')
-              test_passed=$(echo $test_results_json | jq -r '.stats.tests_succ')
-              test_failed=$(echo $test_results_json | jq -r '.stats.tests_fail')
-              test_skipped=$(echo $test_results_json | jq -r '.stats.tests_skip')
-              test_elapsed=$(echo $test_results_json | jq -r '.stats.duration')
-              test_results_url=$(echo $test_results_json | jq -r '.check_url')
-              test_summary=$(echo $test_results_json | jq -r '.summary')
-            fi
+           
+            # Load the test results JSON output
+            test_results_json='${{ steps.test-results.outputs.json }}'
+            
+            # Extract data from the test results JSON
+            test_conclusion=$(echo $test_results_json | jq -r '.conclusion')
+            test_passed=$(echo $test_results_json | jq -r '.stats.tests_succ')
+            test_failed=$(echo $test_results_json | jq -r '.stats.tests_fail')
+            test_skipped=$(echo $test_results_json | jq -r '.stats.tests_skip')
+            test_elapsed=$(echo $test_results_json | jq -r '.stats.duration')
+            test_results_url=$(echo $test_results_json | jq -r '.check_url')
+            test_summary=$(echo $test_results_json | jq -r '.summary')
+            
             
             
             if [[ "$status" == "SUCCESS" ]]; then
