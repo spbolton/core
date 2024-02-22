@@ -215,7 +215,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ steps.workflow-data.outputs.test_summary }}"
+                    "text": "```${{ steps.workflow-data.outputs.test_summary }}```"
                   }
                 },
                 {
