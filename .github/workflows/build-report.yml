@@ -95,7 +95,7 @@ jobs:
             test_skipped=$(echo $test_results_json | jq -r '.stats.tests_skip')
             test_elapsed=$(echo $test_results_json | jq -r '.stats.duration')
             test_results_url=$(echo $test_results_json | jq -r '.check_url')
-            test_summary=$(echo $test_results_json | jq -r '.check_url')
+            test_summary=$(echo $test_results_json | jq -r '.summary')
             escaped_test_summary=$(echo "$test_summary" | sed 's/$/\\n/' | tr -d '\n')
             
             
