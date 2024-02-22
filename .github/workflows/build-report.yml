@@ -17,23 +17,24 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - name: Download Workflow Data
+      - name: Download Test Reports
         id: data-download
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
-          name: 'workflow-data'
-          workflow: ${{ github.event.workflow.id }}
-          run_id: ${{ github.event.workflow_run.id }}
-          if_no_artifact_found: warn
+          pattern: build-reports-test-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          merge-multiple: false
+          path: test-reports
 
       - uses: dorny/test-reporter@v1
         id: test-reporter
         if: steps.data-download.outputs.found_artifact == 'true'
         continue-on-error: true
         with:
-          artifact: /^build-reports-test-(.*)/        # artifact name
-          name: 'MVN Test Report $1'               # Name of the check run which will be created
-          path: '**/target/**/TEST-*.xml'                     # Path to test results (inside artifact .zip)
+          name: 'MVN Test Report'               # Name of the check run which will be created
+          path: 'test-reports/**/target/**/TEST-*.xml'                     # Path to test results (inside artifact .zip)
           reporter: java-junit            # Format of test results
           fail-on-error: true
           list-tests: 'failed'
