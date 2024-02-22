@@ -7,6 +7,7 @@ on:
 
 permissions:
   checks: write
+  pull-requests: write
 
 jobs:
   report:
@@ -39,7 +40,13 @@ jobs:
         id:  check-paths
         run: |
           find test-reports
-
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+          files: |
+            test-reports/**/*.xml
+      
       - uses: dorny/test-reporter@v1
         id: test-reporter
         continue-on-error: true
