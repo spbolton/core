@@ -17,8 +17,15 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - name: Download Test Reports
+      - name: Download Workflow Data
         id: data-download
+        uses: actions/download-artifact@v4
+        with:
+          name: 'workflow-data'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Download Test Reports
+        id: test-data
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
@@ -27,10 +34,14 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           merge-multiple: false
           path: test-reports
+      - name: Check paths
+        id:  check-paths
+        run: |
+          find workflow-data
+          find test-reports
 
       - uses: dorny/test-reporter@v1
         id: test-reporter
-        if: steps.data-download.outputs.found_artifact == 'true'
         continue-on-error: true
         with:
           name: 'MVN Test Report'               # Name of the check run which will be created
