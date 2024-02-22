@@ -144,8 +144,6 @@ jobs:
             echo "test_failed=$test_failed" >> $GITHUB_OUTPUT
             echo "test_skipped=$test_skipped" >> $GITHUB_OUTPUT
             echo "test_elapsed=$test_elapsed" >> $GITHUB_OUTPUT
-            echo "test_summary=${TEST_SUMMARY}" >> $GITHUB_OUTPUT
-          
           fi
           
       - name: Post to a Slack channel
@@ -215,7 +213,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "```${{ steps.workflow-data.outputs.test_summary }}```"
+                    "text": "```${{ fromJSON(steps.test-results.outputs.json).summary }}```"
                   }
                 },
                 {
