@@ -44,12 +44,9 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           merge-multiple: false
           path: test-reports
-      - name: Check paths
-        id:  check-paths
-        run: |
-          find test-reports
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        id: test-results
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           commit: ${{ github.event.workflow_run.head_sha }}
@@ -58,16 +55,8 @@ jobs:
           files: |
             test-reports/**/*.xml
             !test-reports/**/failsafe-summary.xml
-      - uses: dorny/test-reporter@v1
-        id: test-reporter
-        continue-on-error: true
-        with:
-          name: 'MVN Test Report'               # Name of the check run which will be created
-          path: 'test-reports/**/target/**/TEST-*.xml'                     # Path to test results (inside artifact .zip)
-          reporter: java-junit            # Format of test results
-          fail-on-error: true
-          list-tests: 'failed'
-          
+      - name: Conclusion
+        run: echo "Conclusion is ${{ fromJSON( steps.test-results.outputs.json ).conclusion }}"
       - name: Get Workflow Data
         id: workflow-data
         run: |
@@ -95,18 +84,25 @@ jobs:
             branch_url="https://github.com/$source_repository/tree/$branch"
             commit_id_url="https://github.com/$source_repository/pull/$pr_number/commits/$head_sha"
             test_results_url="https://github.com/$source_repository/pull/${pr_number}/checks"
-            if [[ -z "${{ steps.test-reporter.outputs.conclusion }}" ]]; then
+            if [[ -z "${{ steps.test-reporter.outputs.json }}" ]]; then
               test_conclusion="Not Run"
               test_passed=0
               test_failed=0
-              test_skipped=9
+              test_skipped=0
               test_elapsed=0
+              check_url=""
             else
-              test_conclusion=${{ steps.test-reporter.outputs.conclusion }}
-              test_passed=${{ steps.test-reporter.outputs.passed }}
-              test_failed=${{ steps.test-reporter.outputs.failed }}
-              test_skipped=${{ steps.test-reporter.outputs.skipped }}
-              test_elapsed=${{ steps.test-reporter.outputs.time }}
+             # Load the test results JSON output
+              test_results_json='${{ steps.test-results.outputs.json }}'
+              
+              # Extract data from the test results JSON
+              test_conclusion=$(echo $test_results_json | jq -r '.conclusion')
+              test_passed=$(echo $test_results_json | jq -r '.stats.tests_succ')
+              test_failed=$(echo $test_results_json | jq -r '.stats.tests_fail')
+              test_skipped=$(echo $test_results_json | jq -r '.stats.tests_skip')
+              test_elapsed=$(echo $test_results_json | jq -r '.stats.duration')
+              test_results_url=$(echo $test_results_json | jq -r '.check_url')
+              test_summary=$(echo $test_results_json | jq -r '.summary')
             fi
             
             
@@ -153,6 +149,7 @@ jobs:
             echo "test_failed=$test_failed" >> $GITHUB_OUTPUT
             echo "test_skipped=$test_skipped" >> $GITHUB_OUTPUT
             echo "test_elapsed=$test_elapsed" >> $GITHUB_OUTPUT
+            echo "test_summary=$test_summary" >> $GITHUB_OUTPUT
           
           fi
           
@@ -223,7 +220,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Passed:* ${{ steps.workflow-data.outputs.test_passed }} \n*Failed:* ${{ steps.workflow-data.outputs.test_failed }} \n*Skipped:* ${{ steps.workflow-data.outputs.test_skipped }} \n*Elapsed Time:* ${{ steps.workflow-data.outputs.test_elapsed }}"
+                    "text": "${{ steps.workflow-data.outputs.test_summary }}"
                   }
                 },
                 {
@@ -256,17 +253,18 @@ jobs:
                   }
                 },
                 {
-                  "type": "section",
+                  "type": "header",
                   "text": {
-                    "type": "mrkdwn",
-                    "text": "*Action Run ID:* <${{ steps.workflow-data.outputs.action_run_url }} | ${{ steps.workflow-data.outputs.run_id }}> \n*Failure Step:* ${{ steps.workflow-data.outputs.first_fail_step }} \n*Failure Module:* ${{ steps.workflow-data.outputs.first_fail_module }}"
+                    "type": "plain_text",
+                    "text": "🧪 Test Results = ${{ steps.workflow-data.outputs.test_conclusion }}",
+                    "emoji": true
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Failure Message:* ${{ steps.workflow-data.outputs.first_fail_error }}"
+                    "text": "${{ steps.workflow-data.outputs.test_summary }}"
                   }
                 },
                 {
@@ -276,7 +274,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "🧪 Test Results = ${{ steps.workflow-data.outputs.test_conclusion }}",
+                    "text": "${{ steps.workflow-data.outputs.test_summary }}",
                     "emoji": true
                   }
                 },
