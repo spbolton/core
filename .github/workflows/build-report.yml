@@ -56,9 +56,11 @@ jobs:
             test-reports/**/*.xml
             !test-reports/**/failsafe-summary.xml
       - name: Conclusion
-        run: echo "Conclusion is ${{ fromJSON( steps.test-results.outputs.json ).conclusion }}"
+        run: echo "test-results json is ${{ steps.test-results.outputs.json }}"
       - name: Get Workflow Data
         id: workflow-data
+        env:
+          TEST_SUMMARY: ${{ fromJSON(steps.test-results.outputs.json).summary }}
         run: |
           if [[ ! -e "workflow-data.json" ]]
           then
@@ -95,7 +97,7 @@ jobs:
             test_skipped=$(echo $test_results_json | jq -r '.stats.tests_skip')
             test_elapsed=$(echo $test_results_json | jq -r '.stats.duration')
             test_results_url=$(echo $test_results_json | jq -r '.check_url')
-            test_summary=$(echo $test_results_json | jq -ia '.summary')
+        
             
             
             
@@ -142,7 +144,7 @@ jobs:
             echo "test_failed=$test_failed" >> $GITHUB_OUTPUT
             echo "test_skipped=$test_skipped" >> $GITHUB_OUTPUT
             echo "test_elapsed=$test_elapsed" >> $GITHUB_OUTPUT
-            echo "test_summary=$test_summary" >> $GITHUB_OUTPUT
+            echo "test_summary=${TEST_SUMMARY}" >> $GITHUB_OUTPUT
           
           fi
           
