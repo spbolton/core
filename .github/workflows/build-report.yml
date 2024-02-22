@@ -97,7 +97,8 @@ jobs:
             test_skipped=$(echo $test_results_json | jq -r '.stats.tests_skip')
             test_elapsed=$(echo $test_results_json | jq -r '.stats.duration')
             test_results_url=$(echo $test_results_json | jq -r '.check_url')
-        
+            test_summary=$(echo $test_results_json | jq -r '.check_url')
+            escaped_test_summary=$(echo "$test_summary" | sed 's/$/\\n/' | tr -d '\n')
             
             
             
@@ -144,6 +145,7 @@ jobs:
             echo "test_failed=$test_failed" >> $GITHUB_OUTPUT
             echo "test_skipped=$test_skipped" >> $GITHUB_OUTPUT
             echo "test_elapsed=$test_elapsed" >> $GITHUB_OUTPUT
+            echo "test_summary=$escaped_test_summary" >> $GITHUB_OUTPUT
           fi
           
       - name: Post to a Slack channel
@@ -213,7 +215,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "```${{ fromJSON(steps.test-results.outputs.json).summary }}```"
+                    "text": "${{ steps.workflow-data.outputs.test_summary }}"
                   }
                 },
                 {
