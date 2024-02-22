@@ -37,7 +37,6 @@ jobs:
       - name: Check paths
         id:  check-paths
         run: |
-          find workflow-data
           find test-reports
 
       - uses: dorny/test-reporter@v1
