@@ -30,7 +30,7 @@ jobs:
         id: event-data-download
         uses: actions/download-artifact@v4
         with:
-          name: 'event-data'
+          name: 'event-file'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
       
