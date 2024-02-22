@@ -26,6 +26,14 @@ jobs:
           name: 'workflow-data'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
+      - name: Download event Data
+        id: event-data-download
+        uses: actions/download-artifact@v4
+        with:
+          name: 'event-data'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+      
       - name: Download Test Reports
         id: test-data
         uses: actions/download-artifact@v4
@@ -44,9 +52,12 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
         with:
+          commit: ${{ github.event.workflow_run.head_sha }}
+          event_file: event.json
+          event_name: ${{ github.event.workflow_run.event }}
           files: |
             test-reports/**/*.xml
-      
+            !test-reports/**/failsafe-summary.xml
       - uses: dorny/test-reporter@v1
         id: test-reporter
         continue-on-error: true
