@@ -18,45 +18,27 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - uses: actions/checkout@v4
       - name: Download Workflow Data
         id: data-download
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v2
         with:
           name: 'workflow-data'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-      - name: Download event Data
-        id: event-data-download
-        uses: actions/download-artifact@v4
-        with:
-          name: 'event-file'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-      
-      - name: Download Test Reports
-        id: test-data
-        uses: actions/download-artifact@v4
+          workflow: ${{ github.event.workflow.id }}
+          run_id: ${{ github.event.workflow_run.id }}
+          if_no_artifact_found: warn
+
+      - uses: dorny/test-reporter@v1
+        id: test-reporter
+        if: steps.data-download.outputs.found_artifact == 'true'
         continue-on-error: true
         with:
-          pattern: build-reports-test-*
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-          merge-multiple: false
-          path: test-reports
-      - name: Publish Test Results
-        id: test-results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        if: always()
-        with:
-          commit: ${{ github.event.workflow_run.head_sha }}
-          event_file: event.json
-          event_name: ${{ github.event.workflow_run.event }}
-          files: |
-            test-reports/**/*.xml
-            !test-reports/**/failsafe-summary.xml
-      - name: Conclusion
-        run: echo "test-results json is ${{ steps.test-results.outputs.json }}"
+          artifact: /^build-reports-test-(.*)/        # artifact name
+          name: 'MVN Test Report $1'               # Name of the check run which will be created
+          path: '**/target/**/TEST-*.xml'                     # Path to test results (inside artifact .zip)
+          reporter: java-junit            # Format of test results
+          fail-on-error: true
+          list-tests: 'failed'
+
       - name: Get Workflow Data
         id: workflow-data
         run: |
@@ -84,20 +66,19 @@ jobs:
             branch_url="https://github.com/$source_repository/tree/$branch"
             commit_id_url="https://github.com/$source_repository/pull/$pr_number/commits/$head_sha"
             test_results_url="https://github.com/$source_repository/pull/${pr_number}/checks"
-           
-            # Load the test results JSON output
-            test_results_json='${{ steps.test-results.outputs.json }}'
-            
-            # Extract data from the test results JSON
-            test_conclusion=$(echo $test_results_json | jq -r '.conclusion')
-            test_passed=$(echo $test_results_json | jq -r '.stats.tests_succ')
-            test_failed=$(echo $test_results_json | jq -r '.stats.tests_fail')
-            test_skipped=$(echo $test_results_json | jq -r '.stats.tests_skip')
-            test_elapsed=$(echo $test_results_json | jq -r '.stats.duration')
-            test_results_url=$(echo $test_results_json | jq -r '.check_url')
-            test_summary=$(echo $test_results_json | jq -r '.summary')
-            escaped_test_summary=$(echo "$test_summary" | sed 's/$/\\n/' | tr -d '\n')
-            
+            if [[ -z "${{ steps.test-reporter.outputs.conclusion }}" ]]; then
+              test_conclusion="Not Run"
+              test_passed=0
+              test_failed=0
+              test_skipped=9
+              test_elapsed=0
+            else
+              test_conclusion=${{ steps.test-reporter.outputs.conclusion }}
+              test_passed=${{ steps.test-reporter.outputs.passed }}
+              test_failed=${{ steps.test-reporter.outputs.failed }}
+              test_skipped=${{ steps.test-reporter.outputs.skipped }}
+              test_elapsed=${{ steps.test-reporter.outputs.time }}
+            fi
             
             
             if [[ "$status" == "SUCCESS" ]]; then
@@ -143,7 +124,7 @@ jobs:
             echo "test_failed=$test_failed" >> $GITHUB_OUTPUT
             echo "test_skipped=$test_skipped" >> $GITHUB_OUTPUT
             echo "test_elapsed=$test_elapsed" >> $GITHUB_OUTPUT
-            echo "escaped_test_summary=$escaped_test_summary" >> $GITHUB_OUTPUT
+          
           fi
           
       - name: Post to a Slack channel
@@ -213,7 +194,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ steps.workflow-data.outputs.escaped_test_summary }}"
+                    "text": "*Passed:* ${{ steps.workflow-data.outputs.test_passed }} \n*Failed:* ${{ steps.workflow-data.outputs.test_failed }} \n*Skipped:* ${{ steps.workflow-data.outputs.test_skipped }} \n*Elapsed Time:* ${{ steps.workflow-data.outputs.test_elapsed }}"
                   }
                 },
                 {
@@ -246,18 +227,28 @@ jobs:
                   }
                 },
                 {
-                  "type": "header",
+                  "type": "section",
                   "text": {
-                    "type": "plain_text",
-                    "text": "🧪 Test Results = ${{ steps.workflow-data.outputs.test_conclusion }}",
-                    "emoji": true
+                    "type": "mrkdwn",
+                    "text": "*Action Run ID:* <${{ steps.workflow-data.outputs.action_run_url }} | ${{ steps.workflow-data.outputs.run_id }}> \n*Failure Step:* ${{ steps.workflow-data.outputs.first_fail_step }} \n*Failure Module:* ${{ steps.workflow-data.outputs.first_fail_module }}"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ steps.workflow-data.outputs.escaped_test_summary }}}"
+                    "text": "*Failure Message:* ${{ steps.workflow-data.outputs.first_fail_error }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🧪 Test Results = ${{ steps.workflow-data.outputs.test_conclusion }}",
+                    "emoji": true
                   }
                 },
                 {
