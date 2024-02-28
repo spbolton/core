@@ -37,6 +37,7 @@
         <git.origin.branch>693a20f296856dcc8dee99a5556ff02acfb9d6ee</git.origin.branch>
         <nx.affected.options>--base=${git.origin.branch} --head=HEAD</nx.affected.options>
         <pretty.quick.options>--branch=${git.origin.branch}</pretty.quick.options>
+        <skip.node.compile>false</skip.node.compile>
     </properties>
 
     <dependencies>
@@ -118,6 +119,7 @@
                         <phase>compile</phase>
 
                         <configuration>
+                            <skip>${skip.node.compile}</skip>
                             <arguments>run nx build dotcms-ui -- ${nx.build.options}</arguments>
                         </configuration>
                     </execution>
@@ -132,6 +134,7 @@
                         <phase>compile</phase>
 
                         <configuration>
+                            <skip>${skip.node.compile}</skip>
                             <arguments>run nx run dotcms-block-editor:build</arguments>
                         </configuration>
                     </execution>
@@ -146,6 +149,7 @@
                         <phase>compile</phase>
 
                         <configuration>
+                            <skip>${skip.node.compile}</skip>
                             <arguments>run nx run dotcms-binary-field-builder:build</arguments>
                         </configuration>
                     </execution>
@@ -161,7 +165,7 @@
 
                         <configuration>
                             <skip>${skipTests}</skip>
-                            <arguments>npx nx affected --target=test ${nx.affected.options} --parallel --exclude=${frontend.lint.excluded.projects}</arguments>
+                            <arguments>npx nx affected --target=test ${nx.affected.options} --parallel --color=false --exclude=${frontend.lint.excluded.projects}</arguments>
                         </configuration>
                     </execution>
                 </executions>
