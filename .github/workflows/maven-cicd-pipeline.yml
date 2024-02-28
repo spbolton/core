@@ -151,7 +151,7 @@ jobs:
       - name: Lint Checks
         shell: bash
         run: |
-          ./mvnw -Pvalidate --fail-at-end -Dgithub.event.name=${{ github.event_name }} --file pom.xml
+          ./mvnw $JVM_TEST_MAVEN_OPTS -Pvalidate --fail-at-end -Dgithub.event.name=${{ github.event_name }} --file pom.xml
       - name: Maven Build No Test
         shell: bash
         run: |
