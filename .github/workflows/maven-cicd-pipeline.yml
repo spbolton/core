@@ -112,7 +112,6 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup master branch locally without switching current branch
-        if: github.ref != 'refs/heads/master'
         run: git fetch origin master:master
       - uses: ./.github/actions/cleanup-runner
       - name: Set up JDK 11
@@ -152,7 +151,7 @@ jobs:
       - name: Lint Checks
         shell: bash
         run: |
-          ./mvnw -Pvalidate --fail-at-end -Dgithub.event.name=${{ github.event_name }} --file pom.xml
+          ./mvnw $JVM_TEST_MAVEN_OPTS -Pvalidate --fail-at-end -Dgithub.event.name=${{ github.event_name }} --file pom.xml
       - name: Maven Build No Test
         shell: bash
         run: |
@@ -301,8 +300,8 @@ jobs:
         with:
           name: "build-reports-test-cli - JDK ${{matrix.java.name}}"
           path: |
-            tools/dotcms-cli/**/target/failsafe-reports/*.xml
-            tools/dotcms-cli/**/target/jacoco-report/*.exec
+            toole/dotcms-cli/**/target/failsafe-reports/*.xml
+            toole/dotcms-cli/**/target/jacoco-report/*.exec
             target/build-report.json
             LICENSE
           retention-days: 2
@@ -320,6 +319,8 @@ jobs:
       MAVEN_OPTS: -Xmx2048m
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up JDK 11
         uses: actions/setup-java@v4
         with:
@@ -542,7 +543,6 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup master branch locally without switching current branch
-        if: github.ref != 'refs/heads/master'
         run: git fetch origin master:master
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -734,7 +734,6 @@ jobs:
         with:
           name: workflow-data
           path: ./workflow-data.json
-
   final-status:
     name: Final Status
     needs: prepare-report-data
