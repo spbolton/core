@@ -7,6 +7,7 @@
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../build-parent/pom.xml</relativePath>
     </parent>
+    <!-- Test comment do not add to dotcms core -->
     <artifactId>dotcms-core</artifactId>
     <packaging>jar</packaging>
     <properties>
