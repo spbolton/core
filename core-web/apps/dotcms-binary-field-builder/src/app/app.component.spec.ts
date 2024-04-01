@@ -7,6 +7,7 @@ describe('AppComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [AppComponent]
         }).compileComponents();
+        // test comment
     });
 
     it('should create the app', () => {
