@@ -1,0 +1,17 @@
+name: Merge Group Checks - #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}
+on:
+  merge_group:
+    types: [checks_requested]
+    branches: [master]
+concurrency:
+  # `github.event.number` exists for pull requests, otherwise fall back to SHA for merge queue
+  group: ${{ github.workflow }}-${{ github.event.number || github.event.merge_group.base_sha }}
+  cancel-in-progress: true
+jobs:
+  build-test:
+    name: PR Build/Test
+    uses: ./.github/workflows/reusable-ci-build-test.yml
+    with:
+      type: merge_group
+      build: all
+      test: all
