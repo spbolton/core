@@ -1,0 +1,19 @@
+name: PR Checks - #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - synchronize
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  # Cancel any in-progress runs for the same branch/PR to prevent delays from changes during build
+  # On master and other branches run will set as pending.  Any new builds requested will replace the pending build
+  cancel-in-progress: true
+jobs:
+  build-test:
+    name: PR Build-Test
+    uses: ./.github/workflows/reusable-ci-build-test.yml
+    with:
+      type: pr
